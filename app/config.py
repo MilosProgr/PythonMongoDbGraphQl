@@ -1,14 +1,16 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 
 class MongoDB:
-    client: AsyncIOMotorClient = None
-
+    client: AsyncMongoClient = None
+    database = None
 db = MongoDB()
 
-async def connect_to_mongo(uri: str):
-    db.client = AsyncIOMotorClient(uri)
+async def connect_to_mongo(uri:str):
+    db.client = AsyncMongoClient(uri)
+    db.database = db.client["test_db"]  
+
     print("Connected to MongoDB")
 
 async def close_mongo_connection():
     db.client.close()
-    print("Closed MongoDB connection")
+    print("Closed MnogoDB Connection")

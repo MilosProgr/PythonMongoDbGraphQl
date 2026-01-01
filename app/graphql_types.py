@@ -1,4 +1,6 @@
 import strawberry
+from typing import List
+
 
 @strawberry.type
 class UserType:
@@ -6,7 +8,6 @@ class UserType:
     name: str
     email: str
     age: int
-
 
 @strawberry.input
 class UserInput:

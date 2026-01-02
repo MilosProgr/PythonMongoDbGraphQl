@@ -14,3 +14,9 @@ class UserInput:
     name: str
     email: str
     age: int
+
+@strawberry.input
+class UserUpdateInput:
+    name: str
+    email: str
+    age: int

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
-from graphql_schema import schema
-from config import connect_to_mongo, close_mongo_connection
+from app.graphql_schema import schema
+from app.config import connect_to_mongo, close_mongo_connection
 from contextlib import asynccontextmanager
 
 

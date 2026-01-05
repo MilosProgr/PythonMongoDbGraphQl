@@ -1,10 +1,14 @@
 # repositories/user_repo.py
-from config import db
+from app.config import db
 from bson import ObjectId
 
 async def get_all_users():
     countDocuments = await db.database["users"].count_documents({})
-    print(f"Broj dokumenata:   {countDocuments}" )
+    name = db.database["users"]
+    async for index in await name.list_indexes():
+        print("Indeksi: ", index)
+
+    print(f"Broj dokumenata:   {countDocuments} ime {name.distinct("name")}" )
     return await db.database["users"].find().to_list(100)
 
 async def get_user_by_id(self,id:str):

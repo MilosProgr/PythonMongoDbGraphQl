@@ -1,6 +1,6 @@
 # services/user_service.py
-from models import User
-from repo import get_all_users, create_user,update_user,delete_user,get_user_by_id
+from app.models import User
+from app.repo import get_all_users, create_user,update_user,delete_user,get_user_by_id
 from bson import ObjectId
 
 async def list_users() -> list[User]:
@@ -18,16 +18,17 @@ async def list_users() -> list[User]:
         )
 
     return result
-async def get_user(self,id:str) -> User:
-    user = await get_user_by_id(self=self,id=id)
+async def get_user(id: str) -> User:
+    user = await get_user_by_id(id)
     if not user:
         raise Exception("User not found")
-    return {
-        "id": str(user["_id"]),
-        "name": user["name"],
-        "email": user["email"],
-        "age": user["age"]
-    }
+
+    return User(
+        id=str(user["_id"]),
+        name=user["name"],
+        email=user["email"],
+        age=user["age"]
+    )
 
 async def add_user(data: dict):
     result = await create_user(data)

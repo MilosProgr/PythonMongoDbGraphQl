@@ -1,7 +1,7 @@
 # graphql/resolvers.py
 from ast import Dict
-from graphql_types import UserType, UserInput, UserUpdateInput
-from service import list_users, add_user,update_user_service,delete_user_service,get_user
+from app.graphql_types import UserType, UserInput, UserUpdateInput
+from app.service import list_users, add_user,update_user_service,delete_user_service,get_user
 
 async def get_users() -> list[UserType]:
     users = await list_users()
@@ -16,14 +16,16 @@ async def get_users() -> list[UserType]:
         for u in users
         
     ]
-async def find_user(self,id:str) -> UserType:
-    user = await get_user(self,id)
+async def find_user(id: str) -> UserType:
+    user = await get_user(id)
+
     return UserType(
-        id=str(user["id"]),
-        name=user["name"],
-        email=user["email"],
-        age=user["age"]
+        id=user.id,
+        name=user.name,
+        email=user.email,
+        age=user.age
     )
+
     
 
 async def create_user(input: UserInput) -> UserType:

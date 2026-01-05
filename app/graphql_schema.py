@@ -1,7 +1,7 @@
 import strawberry
 from typing import List
-from resolvers import find_user, get_users,create_user,update_user,delete_user
-from graphql_types import UserType
+from app.resolvers import find_user, get_users,create_user,update_user,delete_user
+from app.graphql_types import UserType
 
 @strawberry.type
 class Query:

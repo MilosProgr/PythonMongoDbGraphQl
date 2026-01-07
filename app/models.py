@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field,EmailStr
 from bson import ObjectId
 
 class PyObjectId(ObjectId):
@@ -21,3 +21,10 @@ class User(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+class CreateUserModel(BaseModel):
+    name: str = Field(min_length=2, max_length=50)
+    email: str = EmailStr
+    age: int = Field(gt=18, lt=150)
+
+

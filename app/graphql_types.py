@@ -1,5 +1,5 @@
 import strawberry
-from typing import List
+from typing import List, Optional
 
 
 @strawberry.type
@@ -17,6 +17,6 @@ class UserInput:
 
 @strawberry.input
 class UserUpdateInput:
-    name: str
-    email: str
-    age: int
+    name: Optional[str] = strawberry.UNSET
+    email: Optional[str] = strawberry.UNSET
+    age: Optional[int] = strawberry.UNSET

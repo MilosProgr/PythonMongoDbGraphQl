@@ -3,24 +3,18 @@ from app.config import db
 from bson import ObjectId
 
 async def get_all_users():
-    countDocuments = await db.database["users"].count_documents({})
-    name = db.database["users"]
-    async for index in await name.list_indexes():
-        print("Indeksi: ", index)
-
-    print(f"Broj dokumenata:   {countDocuments} ime {name.distinct("name")}" )
     return await db.database["users"].find().to_list(100)
 
-async def get_user_by_id(self,id:str):
+async def create_user(data: dict):
+    return await db.database["users"].insert_one(data)
+
+async def get_user_by_id(id:str):
     user =  await db.database["users"].find_one({"_id": ObjectId(id)})
     if not user:
         return None
     return user
 
-async def create_user(data: dict):
-    return await db.database["users"].insert_one(data)
-
-async def update_user(self, id: str, data: dict):
+async def update_user(id: str, data: dict):
         result = await db.database["users"].update_one(
             {"_id": ObjectId(id)},
             {"$set": data}
@@ -40,3 +34,14 @@ async def delete_user(self,id:str):
     if not user:
         return None
     return user
+
+async def search_user(input:str):
+    user =  await db.database["users"].find().to_list(100)
+    result = []
+    search_term = input.lower()
+    for data in user:
+        if search_term in str(data).lower():
+            result.append(data)
+    return result
+     
+

@@ -1,7 +1,10 @@
 # services/user_service.py
-from app.models import User
-from app.repo import get_all_users, create_user,update_user,delete_user,get_user_by_id
-from bson import ObjectId
+import strawberry
+from strawberry.types import unset
+from app.graphql_types import UserUpdateInput
+from app.models import User,CreateUserModel
+from app.repo import get_all_users, search_user,create_user,delete_user,get_user_by_id,update_user
+from pydantic import ValidationError
 
 async def list_users() -> list[User]:
     users = await get_all_users()
@@ -18,10 +21,13 @@ async def list_users() -> list[User]:
         )
 
     return result
+
 async def get_user(id: str) -> User:
     user = await get_user_by_id(id)
     if not user:
         raise Exception("User not found")
+    if len(user["name"]) > 4:
+        print("Ime je dugacko yay")
 
     return User(
         id=str(user["_id"]),
@@ -29,36 +35,73 @@ async def get_user(id: str) -> User:
         email=user["email"],
         age=user["age"]
     )
+async def add_user(data: dict) -> User:
+    try:
+        validated = CreateUserModel(**data)
+    except ValidationError as e:
+        raise Exception(e.errors())
 
-async def add_user(data: dict):
-    result = await create_user(data)
-    print("Rezultat: ", data)
-    return {
-        "id": result.inserted_id,
-        **data
-    }
+    result = await create_user(validated.model_dump())
 
-async def update_user_service(self,id: str, input_data: dict):
-    user = await update_user(self,id, input_data)
+    return User(
+        id=str(result.inserted_id),
+        name=validated.name,
+        email=validated.email,
+        age=validated.age
+    )
 
-    if not user:
-        raise Exception("User not found")  # kasnije možeš GraphQL error
+async def update_user_service(
+    id: str,
+    input: "UserUpdateInput"
+) -> "User":
+    # Convert to dict
+    update_data: dict = strawberry.asdict(input)
+    
+    # Filter out fields that are UNSET
+    update_data = {k: v for k, v in update_data.items() if v is not strawberry.UNSET}
 
-    return {
-        "id": str(user["_id"]),
-        "name": user["name"],
-        "email": user["email"],
-        "age": user["age"]
-    }
+    if not update_data:
+        raise Exception("No fields provided for update")
 
-async def delete_user_service(self,id:str):
+    result = await update_user(id, update_data)
+
+    if not result:
+        raise Exception("User not found")
+
+    return User(
+        id=str(result["_id"]),
+        name=result["name"],
+        email=result["email"],
+        age=result["age"]
+    )
+async def delete_user_service(self,id:str) -> User:
     user = await delete_user(self=self,id=id)
     print("s",user)
     if not user:
         raise Exception("User not found")
-    return {
-        "id": str(user["_id"]),
-        "name": user["name"],
-        "email": user["email"],
-        "age": user["age"]
-    }
+    return User(
+        id=str(user["_id"]),
+        name=user["name"],
+        email=user["email"],
+        age=user["age"]
+    )
+    # return {
+    #     "id": str(user["_id"]),
+    #     "name": user["name"],
+    #     "email": user["email"],
+    #     "age": user["age"]
+    # }
+
+async def search_user_service(input:str) -> list[User]:
+    users = await search_user(input=input)
+    return [User(
+        id= str(user["_id"]),
+        name=user["name"],
+        email=user["email"],
+        age=user["age"]
+    )
+        for user in users
+    ]
+
+
+
